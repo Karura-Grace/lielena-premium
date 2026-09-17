@@ -30,11 +30,19 @@ SECRET_KEY = os.environ.get(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Set DJANGO_DEBUG=False in your production environment.
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
     h.strip() for h in os.environ.get(
-        'DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1'
+        'DJANGO_ALLOWED_HOSTS',
+        'localhost,127.0.0.1,lielena-premium.vercel.app'
+    ).split(',') if h.strip()
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    h.strip() for h in os.environ.get(
+        'DJANGO_CSRF_TRUSTED_ORIGINS',
+        'https://lielena-premium.vercel.app'
     ).split(',') if h.strip()
 ]
 
