@@ -1,0 +1,32 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Order Confirmed — LIELENA Design{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width:640px;">
+    <h1 class="section-title">Thank you, {{ order.first_name }}!</h1>
+    <p class="muted" style="margin-bottom:24px;">
+      Your order <strong>#{{ order.id }}</strong> has been placed. A confirmation has
+      been noted against <strong>{{ order.email }}</strong> — we'll reach out to arrange
+      payment and delivery.
+    </p>
+
+    <div style="border:1px solid var(--border-soft);border-radius:var(--radius-card);padding:24px;background:var(--warm-ivory);">
+      <h3 style="font-family:var(--font-serif);margin-bottom:12px;">Order Summary</h3>
+      {% for item in order.items.all %}
+        <div style="display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:10px 0;border-bottom:1px dashed var(--border-soft);">
+          <span>{{ item.name }} × {{ item.quantity }}</span>
+          <span>${{ item.subtotal }}</span>
+        </div>
+      {% endfor %}
+      <div style="display:flex;justify-content:space-between;font-weight:700;font-size:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border-soft);">
+        <span>Total</span>
+        <span>${{ order.total }}</span>
+      </div>
+    </div>
+
+    <a href="{% url 'shop:shop' %}" class="btn btn-dark" style="margin-top:24px;">Continue Shopping</a>
+  </div>
+</section>
+{% endblock %}

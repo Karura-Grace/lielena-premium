@@ -1,0 +1,457 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}LIELENA Design — Handcrafted Leather{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    /* ── Navbar (ported from home page, scoped so it never touches
+         the rest of the site's .brand / .container styling) ── */
+    :root {
+      --nav-ink:   #1a1410;
+      --nav-muted: #6b5e52;
+      --nav-line:  rgba(26,20,16,.1);
+      --nav-gold:  #c7a36b;
+      --nav-serif: "Playfair Display", Georgia, serif;
+      --nav-sans:  "DM Sans", system-ui, sans-serif;
+    }
+    body { padding-top: 72px; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+    @media (max-width: 640px) { .wrap { padding: 0 20px; } }
+
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 72px;
+      background: rgba(255,255,255,.97);
+      border-bottom: 1px solid var(--nav-line);
+      z-index: 1000;
+      transition: box-shadow .3s ease;
+      font-family: var(--nav-sans);
+    }
+    .nav.scrolled { box-shadow: 0 8px 32px rgba(26,20,16,.10); }
+    .nav-inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+
+    .nav .brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .nav .brand-logo { display: flex; flex-direction: column; line-height: 1; }
+    .nav .brand-name { font-family: var(--nav-serif); font-size: 20px; font-weight: 700; letter-spacing: .08em; color: var(--nav-ink); }
+    .nav .brand-sub { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--nav-muted); margin-top: 1px; }
+    .nav .brand-star { color: var(--nav-gold); font-size: 13px; margin-left: 3px; }
+    .nav .brand-logo-img {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #e8ddd0;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .nav .brand-logo-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a {
+      position: relative;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      color: rgba(26,20,16,.72);
+      padding: 4px 0;
+    }
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: -2px;
+      height: 1.5px;
+      background: var(--nav-ink);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .24s ease;
+    }
+    .nav-links a:hover { color: var(--nav-ink); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-links a.active { color: var(--nav-ink); font-weight: 600; }
+    .nav-links a.active::after { transform: scaleX(1); }
+
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(26,20,16,.14);
+      background: transparent;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      position: relative;
+      transition: border-color .2s ease, background .2s ease;
+    }
+    .icon-btn:hover { border-color: rgba(26,20,16,.3); background: rgba(26,20,16,.03); }
+    .icon-btn svg { width: 17px; height: 17px; stroke: var(--nav-ink); fill: none; stroke-width: 1.6; }
+    .badge {
+      position: absolute;
+      top: -5px; right: -5px;
+      min-width: 17px; height: 17px;
+      border-radius: 50%;
+      background: #2b1811;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: none;
+      place-items: center;
+      border: 2px solid #fff;
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(26,20,16,.14);
+      background: transparent;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+      order: 2;
+    }
+    .hamburger span { display: block; width: 16px; height: 1.5px; background: var(--nav-ink); border-radius: 2px; }
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .nav .brand { order: 0; }
+      .nav-actions { order: 1; }
+      .nav-inner { gap: 8px; }
+    }
+    @media (min-width: 901px) { .hamburger { display: none !important; } }
+
+    .mobile-panel {
+      position: fixed;
+      top: 72px; right: 0;
+      width: 280px; max-width: 80vw;
+      background: rgba(255,255,255,.98);
+      border-bottom: 1px solid var(--nav-line);
+      border-left: 1px solid var(--nav-line);
+      box-shadow: -20px 20px 40px rgba(26,20,16,.10);
+      z-index: 999;
+      transform: translateX(100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform .3s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+      padding: 8px 0;
+      font-family: var(--nav-sans);
+    }
+    .mobile-panel.open { transform: translateX(0); opacity: 1; pointer-events: auto; }
+    .mobile-panel a {
+      display: block;
+      padding: 14px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      color: rgba(26,20,16,.75);
+      border-bottom: 1px solid rgba(26,20,16,.06);
+    }
+    .mobile-panel a:last-child { border-bottom: none; }
+    .mobile-panel a:hover { color: var(--nav-ink); background: rgba(26,20,16,.03); }
+    .mobile-panel a.active { color: #1f5331; font-weight: 600; }
+
+    .mobile-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.3);
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .mobile-overlay.open { opacity: 1; pointer-events: auto; }
+
+    /* ── Cart drawer ── */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.44);
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s ease;
+      z-index: 1090;
+    }
+    .drawer-overlay.on { opacity: 1; pointer-events: auto; }
+    .drawer {
+      position: fixed;
+      top: 0; right: 0;
+      width: min(440px, 94vw); height: 100%;
+      background: #fff;
+      border-left: 1px solid var(--nav-line);
+      box-shadow: -20px 0 60px rgba(0,0,0,.14);
+      transform: translateX(16px);
+      opacity: 0; pointer-events: none;
+      transition: transform .22s ease, opacity .22s ease;
+      display: flex; flex-direction: column;
+      z-index: 1100;
+      font-family: var(--nav-sans);
+    }
+    .drawer.on { transform: none; opacity: 1; pointer-events: auto; }
+    .drawer-head {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--nav-line);
+    }
+    .drawer-title { font-family: var(--nav-serif); font-size: 20px; font-weight: 600; }
+    .drawer-body { padding: 16px 20px; overflow: auto; flex: 1; }
+    .drawer-foot { padding: 16px 20px; border-top: 1px solid var(--nav-line); }
+    .cart-item {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px dashed rgba(26,20,16,.12);
+    }
+    .cart-thumb {
+      width: 76px; height: 76px;
+      border-radius: 12px;
+      background: center/cover no-repeat #f0e8dc;
+    }
+    .cart-name { font-weight: 700; font-size: 14px; }
+    .cart-meta { font-size: 12px; color: var(--nav-muted); margin-top: 4px; }
+    .qty { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .qty button {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      border: 1px solid rgba(26,20,16,.15);
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .qty span { min-width: 24px; text-align: center; font-weight: 700; font-size: 13px; }
+    .link-btn {
+      padding: 0; border: 0; background: transparent;
+      color: var(--nav-muted); text-decoration: underline;
+      cursor: pointer; font-size: 12px;
+    }
+    .add-to-cart-btn { margin-top: 12px; width: 100%; justify-content: center; padding: 9px 12px; font-size: 11px; }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- ═══ NAVBAR (matches home page) ═══ -->
+  <nav class="nav" id="main-nav" aria-label="Main navigation">
+    <div class="wrap nav-inner">
+      <a class="brand" href="{% url 'shop:home' %}" aria-label="LIELENA Fashion home">
+        <div class="brand-logo-img">
+          <img src="{% static 'img/logo.jpg' %}" alt="LIELENA Logo" />
+        </div>
+        <div class="brand-logo">
+          <span class="brand-name">LIELENA<span class="brand-star">✦</span></span>
+          <span class="brand-sub">Design</span>
+        </div>
+      </a>
+
+      <div class="nav-links">
+        <a href="{% url 'shop:home' %}"{% if request.resolver_match.url_name == 'home' %} class="active"{% endif %}>Home</a>
+        <a href="{% url 'shop:shop' %}"{% if request.resolver_match.url_name == 'shop' %} class="active"{% endif %}>Shop</a>
+        <a href="{% url 'shop:home' %}#about">About</a>
+        <a href="{% url 'shop:shop' %}">Premium Collection</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="icon-btn" id="open-cart-btn" aria-label="Open shopping cart">
+          <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="badge" id="cart-badge">0</span>
+        </button>
+        <button class="hamburger" aria-label="Open menu" aria-expanded="false" data-mobile-toggle>
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-overlay" data-mobile-overlay></div>
+
+  <div class="mobile-panel" data-mobile-panel>
+    <a href="{% url 'shop:home' %}"{% if request.resolver_match.url_name == 'home' %} class="active"{% endif %}>Home</a>
+    <a href="{% url 'shop:shop' %}"{% if request.resolver_match.url_name == 'shop' %} class="active"{% endif %}>Shop</a>
+    <a href="{% url 'shop:home' %}#about">About</a>
+    <a href="{% url 'shop:shop' %}">Premium Collection</a>
+  </div>
+
+  <!-- ═══ CART DRAWER ═══ -->
+  <div class="drawer-overlay" id="drawer-overlay" aria-hidden="true"></div>
+  <aside class="drawer" id="cart-drawer" aria-label="Shopping cart">
+    <div class="drawer-head">
+      <div class="drawer-title">Your Cart</div>
+      <button class="icon-btn" id="close-cart-btn" aria-label="Close cart">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <p id="cart-empty" style="color:var(--nav-muted);padding:12px 0;font-size:14px;">Your cart is empty.</p>
+      <div id="cart-items"></div>
+    </div>
+    <div class="drawer-foot">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="font-weight:700;font-size:15px;">Subtotal</div>
+        <div style="font-weight:700;font-size:15px;" id="cart-total">$0.00</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-outline" id="clear-cart-btn">Clear</button>
+        <button class="btn btn-dark" id="go-checkout-btn" style="flex:1;justify-content:center;">Checkout</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <div class="brand">LIELENA <span>Design</span></div>
+        <p class="muted">Handcrafted leather goods, made with care.</p>
+      </div>
+      <div class="footer-links">
+        <a href="{% url 'shop:shop' %}">Shop all</a>
+        {% for cat in nav_categories %}
+          <a href="{% url 'shop:shop' %}?category={{ cat.slug }}">{{ cat.name }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="container">
+      <p class="muted small">&copy; {% now "Y" %} LIELENA Design. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var nav = document.getElementById('main-nav');
+      var toggle = document.querySelector('[data-mobile-toggle]');
+      var panel = document.querySelector('[data-mobile-panel]');
+      var overlay = document.querySelector('[data-mobile-overlay]');
+
+      window.addEventListener('scroll', function () {
+        nav.classList.toggle('scrolled', window.scrollY > 20);
+      }, { passive: true });
+
+      function closeMenu() {
+        toggle.setAttribute('aria-expanded', 'false');
+        panel.classList.remove('open');
+        overlay.classList.remove('open');
+      }
+      toggle.addEventListener('click', function () {
+        var open = panel.classList.toggle('open');
+        overlay.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+      overlay.addEventListener('click', closeMenu);
+      panel.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', closeMenu);
+      });
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var CART_KEY = 'lielena_cart_v1';
+      var money = function (v) { return '$' + Number(v || 0).toFixed(2); };
+
+      function loadCart() {
+        try {
+          var c = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+          return Array.isArray(c) ? c : [];
+        } catch (e) { return []; }
+      }
+      function saveCart(c) { localStorage.setItem(CART_KEY, JSON.stringify(c)); }
+      function cartCount(c) { return c.reduce(function (s, i) { return s + (i.qty || 0); }, 0); }
+      function cartTotal(c) { return c.reduce(function (s, i) { return s + i.qty * i.price; }, 0); }
+
+      function addToCart(item) {
+        var c = loadCart();
+        var existing = c.find(function (i) { return i.id === item.id; });
+        if (existing) existing.qty += 1;
+        else c.push({ id: item.id, name: item.name, price: item.price, image: item.image, qty: 1 });
+        saveCart(c);
+        renderCart();
+        openCart(true);
+      }
+      function updateQty(id, delta) {
+        var c = loadCart();
+        var item = c.find(function (i) { return i.id === id; });
+        if (item) { item.qty += delta; saveCart(c.filter(function (i) { return i.qty > 0; })); renderCart(); }
+      }
+      function removeItem(id) {
+        saveCart(loadCart().filter(function (i) { return i.id !== id; }));
+        renderCart();
+      }
+      function clearCart() { saveCart([]); renderCart(); }
+
+      function renderCart() {
+        var c = loadCart();
+        var badge = document.getElementById('cart-badge');
+        var count = cartCount(c);
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'grid' : 'none';
+        document.getElementById('cart-total').textContent = money(cartTotal(c));
+
+        var empty = document.getElementById('cart-empty');
+        var items = document.getElementById('cart-items');
+        empty.style.display = c.length ? 'none' : 'block';
+        items.innerHTML = c.map(function (item) {
+          return (
+            '<div class="cart-item">' +
+              '<div class="cart-thumb" style="background-image:url(\'' + item.image + '\')"></div>' +
+              '<div>' +
+                '<div class="cart-name">' + item.name + '</div>' +
+                '<div class="cart-meta">' + money(item.price) + '</div>' +
+                '<div class="qty">' +
+                  '<button data-qty="' + item.id + '" data-delta="-1">−</button>' +
+                  '<span>' + item.qty + '</span>' +
+                  '<button data-qty="' + item.id + '" data-delta="1">+</button>' +
+                  '<button class="link-btn" data-remove="' + item.id + '" style="margin-left:auto">Remove</button>' +
+                '</div>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+      }
+
+      function openCart(open) {
+        document.getElementById('cart-drawer').classList.toggle('on', open);
+        document.getElementById('drawer-overlay').classList.toggle('on', open);
+      }
+
+      document.getElementById('open-cart-btn').addEventListener('click', function () { openCart(true); });
+      document.getElementById('close-cart-btn').addEventListener('click', function () { openCart(false); });
+      document.getElementById('drawer-overlay').addEventListener('click', function () { openCart(false); });
+      document.getElementById('clear-cart-btn').addEventListener('click', clearCart);
+      document.getElementById('go-checkout-btn').addEventListener('click', function () {
+        window.location.href = '{% url "shop:checkout" %}';
+      });
+
+      document.getElementById('cart-items').addEventListener('click', function (e) {
+        var qty = e.target.closest('[data-qty]');
+        var rem = e.target.closest('[data-remove]');
+        if (qty) updateQty(qty.dataset.qty, Number(qty.dataset.delta || 0));
+        if (rem) removeItem(rem.dataset.remove);
+      });
+
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-add]');
+        if (!btn) return;
+        e.preventDefault();
+        addToCart({
+          id: btn.dataset.add,
+          name: btn.dataset.name,
+          price: parseFloat(btn.dataset.price),
+          image: btn.dataset.image
+        });
+      });
+
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') openCart(false); });
+
+      renderCart();
+    })();
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

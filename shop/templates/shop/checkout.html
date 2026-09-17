@@ -1,0 +1,346 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Checkout — LIELENA Design{% endblock %}
+
+{% block extra_head %}
+<style>
+  .checkout-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--green-deep);
+    margin-bottom: 8px;
+  }
+  .checkout-lead {
+    color: var(--muted-text);
+    margin: 6px 0 0;
+    max-width: 480px;
+  }
+
+  .checkout-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 32px;
+    align-items: start;
+    margin-top: 32px;
+  }
+  @media (max-width: 900px) {
+    .checkout-grid { grid-template-columns: 1fr; }
+    .order-summary-card { order: -1; }
+  }
+
+  .checkout-form-card, .order-summary-card {
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    background: #fff;
+  }
+  .checkout-form-card { padding: 32px; }
+
+  .co-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-serif);
+    font-size: 17px;
+    color: var(--dark-text);
+    margin: 28px 0 4px;
+  }
+  .co-section-title:first-child { margin-top: 0; }
+  .co-section-title .co-step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--green-deep);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .co-section-sub { font-size: 13px; color: var(--muted-text); margin: 0 0 4px 32px; }
+
+  .co-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 480px) { .co-row-2 { grid-template-columns: 1fr; } }
+  .co-field { display: grid; gap: 6px; margin-top: 16px; margin-left: 32px; }
+  @media (max-width: 480px) { .co-field { margin-left: 0; } }
+  .co-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--dark-text);
+  }
+  .co-field label .req { color: #b23b3b; }
+  .co-field input {
+    height: 44px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-soft);
+    padding: 0 14px;
+    font: inherit;
+    width: 100%;
+    background: #fdfcfa;
+    transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .co-field input:hover { border-color: #d8cfba; }
+  .co-field input:focus {
+    outline: none;
+    border-color: var(--green-deep);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(31, 77, 58, 0.12);
+  }
+  .co-divider { border: none; border-top: 1px solid var(--border-soft); margin: 28px 0 0; }
+
+  #co-error {
+    display: none;
+    margin: 18px 0 0 0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #fdecec;
+    border: 1px solid #f2c6c6;
+    font-size: 13px;
+    color: #b23b3b;
+  }
+
+  .place-order-btn {
+    margin-top: 24px;
+    width: 100%;
+    justify-content: center;
+    padding: 15px;
+    font-size: 14px;
+    gap: 8px;
+  }
+  .place-order-btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+  .co-secure-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted-text);
+    margin-top: 12px;
+  }
+
+  /* Order summary */
+  .order-summary-card { padding: 28px; position: sticky; top: 96px; }
+  .order-summary-title {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .order-summary-count { font-size: 13px; color: var(--muted-text); margin-bottom: 18px; }
+
+  .summary-item {
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .summary-item:last-of-type { border-bottom: none; }
+  .summary-thumb {
+    width: 52px; height: 52px;
+    border-radius: 10px;
+    background: center/cover no-repeat var(--warm-ivory);
+    flex-shrink: 0;
+  }
+  .summary-name { font-size: 13.5px; font-weight: 600; color: var(--dark-text); line-height: 1.35; }
+  .summary-qty { font-size: 12px; color: var(--muted-text); margin-top: 2px; }
+  .summary-price { font-size: 13.5px; font-weight: 700; color: var(--dark-text); white-space: nowrap; }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13.5px;
+    color: var(--muted-text);
+    margin-top: 14px;
+  }
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--dark-text);
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .empty-cart-state { text-align: center; padding: 12px 4px 4px; }
+  .empty-cart-state svg { width: 40px; height: 40px; stroke: var(--muted-text); margin-bottom: 10px; }
+  .empty-cart-state p { color: var(--muted-text); font-size: 14px; margin-bottom: 16px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="checkout-eyebrow">Secure Checkout</div>
+    <h1 class="section-title" style="margin:0;">Complete your order</h1>
+
+    <div class="checkout-grid">
+      <div class="checkout-form-card">
+        <div class="co-section-title"><span class="co-step-num">1</span> Contact information</div>
+        <div class="co-row-2">
+          <div class="co-field" style="margin-left:0;"><label>First name <span class="req">*</span></label><input type="text" id="co-first" autocomplete="given-name" required></div>
+          <div class="co-field" style="margin-left:0;"><label>Last name</label><input type="text" id="co-last" autocomplete="family-name"></div>
+        </div>
+        <div class="co-field" style="margin-left:0;"><label>Email <span class="req">*</span></label><input type="email" id="co-email" autocomplete="email" required></div>
+        <div class="co-field" style="margin-left:0;"><label>Phone</label><input type="tel" id="co-phone" autocomplete="tel"></div>
+
+        <hr class="co-divider">
+
+        <div class="co-section-title"><span class="co-step-num">2</span> Shipping address</div>
+        <div class="co-field" style="margin-left:0;"><label>Address</label><input type="text" id="co-address" autocomplete="street-address"></div>
+        <div class="co-row-2">
+          <div class="co-field" style="margin-left:0;"><label>City</label><input type="text" id="co-city" autocomplete="address-level2"></div>
+          <div class="co-field" style="margin-left:0;"><label>Country</label><input type="text" id="co-country" autocomplete="country-name"></div>
+        </div>
+
+        {% csrf_token %}
+        <p id="co-error"></p>
+
+        <button class="btn btn-dark place-order-btn" id="place-order-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Place Order
+        </button>
+        <div class="co-secure-note">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Your details are only used to fulfil this order.
+        </div>
+      </div>
+
+      <div class="order-summary-card">
+        <div class="order-summary-title">Order Summary</div>
+        <div class="order-summary-count" id="summary-count"></div>
+        <div id="summary-items"></div>
+        <div class="summary-row" id="summary-subtotal-row" style="display:none;">
+          <span>Subtotal</span>
+          <span id="summary-subtotal">$0.00</span>
+        </div>
+        <div class="summary-total">
+          <span>Total</span>
+          <span id="summary-total">$0.00</span>
+        </div>
+        <a href="{% url 'shop:shop' %}" class="btn btn-outline" style="margin-top:18px;width:100%;justify-content:center;">&larr; Back to Shop</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    var CART_KEY = 'lielena_cart_v1';
+    function loadCart() {
+      try {
+        var c = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+        return Array.isArray(c) ? c : [];
+      } catch (e) { return []; }
+    }
+    function money(v) { return '$' + Number(v || 0).toFixed(2); }
+
+    var cart = loadCart();
+    var summaryItems = document.getElementById('summary-items');
+    var summaryCount = document.getElementById('summary-count');
+    var summaryTotal = document.getElementById('summary-total');
+    var subtotalRow = document.getElementById('summary-subtotal-row');
+    var subtotalEl = document.getElementById('summary-subtotal');
+    var placeOrderBtn = document.getElementById('place-order-btn');
+    var errorEl = document.getElementById('co-error');
+
+    function renderSummary() {
+      if (!cart.length) {
+        summaryCount.textContent = '';
+        summaryItems.innerHTML =
+          '<div class="empty-cart-state">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>' +
+            '<p>Your cart is empty.</p>' +
+            '<a href="{% url "shop:shop" %}" class="btn btn-dark">Browse the Shop</a>' +
+          '</div>';
+        placeOrderBtn.disabled = true;
+        return;
+      }
+      var count = cart.reduce(function (s, i) { return s + i.qty; }, 0);
+      summaryCount.textContent = count + (count === 1 ? ' item' : ' items');
+
+      var total = 0;
+      summaryItems.innerHTML = cart.map(function (item) {
+        var lineTotal = item.qty * item.price;
+        total += lineTotal;
+        return (
+          '<div class="summary-item">' +
+            '<div class="summary-thumb" style="background-image:url(\'' + (item.image || '') + '\')"></div>' +
+            '<div>' +
+              '<div class="summary-name">' + item.name + '</div>' +
+              '<div class="summary-qty">Qty ' + item.qty + ' × ' + money(item.price) + '</div>' +
+            '</div>' +
+            '<div class="summary-price">' + money(lineTotal) + '</div>' +
+          '</div>'
+        );
+      }).join('');
+
+      subtotalRow.style.display = 'flex';
+      subtotalEl.textContent = money(total);
+      summaryTotal.textContent = money(total);
+    }
+    renderSummary();
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+      errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    placeOrderBtn.addEventListener('click', function () {
+      errorEl.style.display = 'none';
+
+      var firstName = document.getElementById('co-first').value.trim();
+      var email = document.getElementById('co-email').value.trim();
+      if (!firstName) { showError('Please enter your first name.'); return; }
+      if (!email.includes('@')) { showError('Please enter a valid email address.'); return; }
+      if (!cart.length) { showError('Your cart is empty.'); return; }
+
+      var payload = {
+        first_name: firstName,
+        last_name: document.getElementById('co-last').value.trim(),
+        email: email,
+        phone: document.getElementById('co-phone').value.trim(),
+        address: document.getElementById('co-address').value.trim(),
+        city: document.getElementById('co-city').value.trim(),
+        country: document.getElementById('co-country').value.trim(),
+        items: cart.map(function (item) {
+          return { id: item.id, name: item.name, price: item.price, qty: item.qty };
+        })
+      };
+
+      var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      placeOrderBtn.disabled = true;
+      placeOrderBtn.innerHTML = 'Placing order…';
+
+      fetch('{% url "shop:place_order" %}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify(payload)
+      })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+          if (!result.ok) {
+            showError(result.data.error || 'Something went wrong placing your order.');
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.innerHTML = 'Place Order';
+            return;
+          }
+          localStorage.removeItem(CART_KEY);
+          window.location.href = '/order/' + result.data.order_id + '/confirmation/';
+        })
+        .catch(function () {
+          showError('Network error, please try again.');
+          placeOrderBtn.disabled = false;
+          placeOrderBtn.innerHTML = 'Place Order';
+        });
+    });
+  })();
+</script>
+{% endblock %}

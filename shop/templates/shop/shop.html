@@ -1,0 +1,61 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Shop — LIELENA Design{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="section-title">Shop All</h1>
+
+    <div class="filter-row">
+      <div class="category-bar" style="margin-bottom:0;">
+        <a href="{% url 'shop:shop' %}" class="category-chip{% if not active_category %} active{% endif %}">All</a>
+        {% for cat in categories %}
+          <a href="{% url 'shop:shop' %}?category={{ cat.slug }}" class="category-chip{% if active_category == cat.slug %} active{% endif %}">{{ cat.name }}</a>
+        {% endfor %}
+      </div>
+      <form class="search-box" method="get">
+        {% if active_category %}<input type="hidden" name="category" value="{{ active_category }}">{% endif %}
+        <input type="text" name="q" value="{{ query }}" placeholder="Search products…">
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    {% if products %}
+      <div class="product-grid">
+        {% for product in products %}
+          <div class="product-card">
+            <a href="{{ product.get_absolute_url }}">
+              <div class="img-wrap">
+                {% if product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                {% endif %}
+              </div>
+              <div class="info">
+                <div class="cat-label">{{ product.category.name }}</div>
+                <h3>{{ product.name }}</h3>
+                <div class="price">${{ product.price }}</div>
+                {% if not product.in_stock %}<span class="out-of-stock-tag">Out of stock</span>{% endif %}
+              </div>
+            </a>
+            {% if product.in_stock %}
+              <button
+                class="btn btn-dark add-to-cart-btn"
+                data-add="{{ product.slug }}"
+                data-name="{{ product.name }}"
+                data-price="{{ product.price }}"
+                data-image="{% if product.image %}{{ product.image.url }}{% endif %}"
+                style="margin: 0 16px 16px; width: calc(100% - 32px);"
+              >Add to Cart</button>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <p>No products found{% if query %} for "{{ query }}"{% endif %}.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

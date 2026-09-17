@@ -1,0 +1,70 @@
+{% extends "shop/base.html" %}
+
+{% block title %}{{ product.name }} — LIELENA Design{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="product-detail" style="padding-top:20px;">
+      <div class="img-wrap">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% endif %}
+      </div>
+      <div style="padding-left:48px;">
+        <div class="cat-label">{{ product.category.name }}</div>
+        <h1>{{ product.name }}</h1>
+        <div class="price">${{ product.price }}</div>
+        {% if product.description %}
+          <p class="desc">{{ product.description|linebreaks }}</p>
+        {% endif %}
+        {% if product.in_stock %}
+          <p class="muted">In stock — ready to ship.</p>
+        {% else %}
+          <span class="out-of-stock-tag">Currently out of stock</span>
+        {% endif %}
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
+          {% if product.in_stock %}
+            <button
+              class="btn btn-dark"
+              data-add="{{ product.slug }}"
+              data-name="{{ product.name }}"
+              data-price="{{ product.price }}"
+              data-image="{% if product.image %}{{ product.image.url }}{% endif %}"
+            >Add to Cart</button>
+          {% endif %}
+          <a href="{% url 'shop:shop' %}" class="btn btn-outline">&larr; Back to Shop</a>
+        </div>
+      </div>
+    </div>
+
+    {% if related_products %}
+      <h2 class="section-title" style="margin-top:64px;">You Might Also Like</h2>
+      <div class="product-grid">
+        {% for p in related_products %}
+          <div class="product-card">
+            <a href="{{ p.get_absolute_url }}">
+              <div class="img-wrap">
+                {% if p.image %}<img src="{{ p.image.url }}" alt="{{ p.name }}" loading="lazy">{% endif %}
+              </div>
+              <div class="info">
+                <div class="cat-label">{{ p.category.name }}</div>
+                <h3>{{ p.name }}</h3>
+                <div class="price">${{ p.price }}</div>
+              </div>
+            </a>
+            <button
+              class="btn btn-dark add-to-cart-btn"
+              data-add="{{ p.slug }}"
+              data-name="{{ p.name }}"
+              data-price="{{ p.price }}"
+              data-image="{% if p.image %}{{ p.image.url }}{% endif %}"
+              style="margin: 0 16px 16px; width: calc(100% - 32px);"
+            >Add to Cart</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
