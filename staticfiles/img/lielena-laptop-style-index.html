@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIELENA Fashion</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Poppins,sans-serif;background:#f8f5ef;color:#222}
+header{display:flex;justify-content:space-between;align-items:center;padding:25px 8%;background:#fff}
+.logo{font-family:'Playfair Display',serif;font-size:34px;color:#3d6b45;font-weight:700}
+nav a{margin:0 18px;text-decoration:none;color:#222}
+.icons span{margin-left:18px;font-size:22px}
+.hero{
+display:grid;
+grid-template-columns:1fr 1fr;
+align-items:center;
+padding:60px 8%;
+background:#faf7f2;
+}
+.hero-text h1{
+font-family:'Playfair Display',serif;
+font-size:70px;
+line-height:1.05;
+margin-bottom:20px;
+}
+.script{
+font-style:italic;
+font-size:52px;
+display:block;
+font-weight:400;
+}
+.hero-text p{
+font-size:24px;
+margin-bottom:30px;
+}
+.btn{
+display:inline-block;
+padding:16px 34px;
+background:#1d1d1d;
+color:#fff;
+text-decoration:none;
+border-radius:12px;
+}
+.hero-image img{
+width:100%;
+max-width:650px;
+display:block;
+margin:auto;
+}
+.products{
+padding:60px 8%;
+background:#fff;
+}
+.products-head{
+display:flex;
+justify-content:space-between;
+margin-bottom:25px;
+}
+.grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+}
+.card{
+background:#f8f5ef;
+padding:15px;
+border-radius:16px;
+}
+.card img{
+width:100%;
+height:220px;
+object-fit:cover;
+border-radius:12px;
+}
+.card h3{margin-top:12px}
+.price{font-weight:600}
+@media(max-width:900px){
+.hero{grid-template-columns:1fr}
+.hero-text h1{font-size:48px}
+.grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">LIELENA</div>
+<nav>
+<a href="#">Home</a>
+<a href="#">Shop</a>
+<a href="#">Men</a>
+<a href="#">Women</a>
+<a href="#">About</a>
+<a href="#">Contact</a>
+</nav>
+<div class="icons">
+<span>🔍</span><span>♡</span><span>🛒</span>
+</div>
+</header>
+
+<section class="hero">
+<div class="hero-text">
+<span class="script">Discover</span>
+<h1>Pure Ethiopian<br>Collections</h1>
+<p>Minimal. Bold. Enduring.</p>
+<a href="#" class="btn">SHOP NOW →</a>
+</div>
+
+<div class="hero-image">
+<img src="hero-products.png" alt="Lielena Collection">
+</div>
+</section>
+
+<section class="products">
+<div class="products-head">
+<h2>Featured Products</h2>
+<h3>View All →</h3>
+</div>
+
+<div class="grid">
+<div class="card">
+<img src="bag1.jpg">
+<h3>LIELENA Leather Bag</h3>
+<div class="price">$189.99</div>
+</div>
+
+<div class="card">
+<img src="bag2.jpg">
+<h3>LIELENA Patent Bag</h3>
+<div class="price">$149.99</div>
+</div>
+
+<div class="card">
+<img src="bag3.jpg">
+<h3>LIELENA Messenger</h3>
+<div class="price">$179.99</div>
+</div>
+
+<div class="card">
+<img src="bag4.jpg">
+<h3>LIELENA Leather Bag</h3>
+<div class="price">$199.99</div>
+</div>
+</div>
+</section>
+
+</body>
+</html>

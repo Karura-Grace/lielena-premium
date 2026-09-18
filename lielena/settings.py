@@ -30,19 +30,11 @@ SECRET_KEY = os.environ.get(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Set DJANGO_DEBUG=False in your production environment.
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
     h.strip() for h in os.environ.get(
-        'DJANGO_ALLOWED_HOSTS',
-        'localhost,127.0.0.1,lielena-premium.vercel.app'
-    ).split(',') if h.strip()
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    h.strip() for h in os.environ.get(
-        'DJANGO_CSRF_TRUSTED_ORIGINS',
-        'https://lielena-premium.vercel.app'
+        'DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1'
     ).split(',') if h.strip()
 ]
 
@@ -61,6 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,13 +85,26 @@ WSGI_APPLICATION = 'lielena.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
+#
+# Locally, with no DATABASE_URL set, this uses sqlite so you can develop
+# without any setup. In production (Vercel), set DATABASE_URL to your
+# Supabase connection string and it switches to that automatically.
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+import dj_database_url
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -140,8 +146,43 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (product photos uploaded via the admin)
+#
+# Locally (no Supabase env vars set) these are saved to the media/ folder
+# on disk, same as before. In production, Vercel's filesystem is read-only
+# and ephemeral, so uploaded photos MUST live somewhere external — this
+# switches to Supabase Storage (S3-compatible) automatically whenever the
+# SUPABASE_STORAGE_* env vars are present. New admin uploads go straight
+# there too, no extra steps needed.
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+SUPABASE_STORAGE_ENDPOINT = os.environ.get('SUPABASE_STORAGE_ENDPOINT')
+SUPABASE_STORAGE_BUCKET = os.environ.get('SUPABASE_STORAGE_BUCKET', 'product-images')
+SUPABASE_ACCESS_KEY_ID = os.environ.get('SUPABASE_ACCESS_KEY_ID')
+SUPABASE_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_SECRET_ACCESS_KEY')
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+if SUPABASE_STORAGE_ENDPOINT and SUPABASE_ACCESS_KEY_ID:
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    }
+    AWS_ACCESS_KEY_ID = SUPABASE_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY = SUPABASE_SECRET_ACCESS_KEY
+    AWS_STORAGE_BUCKET_NAME = SUPABASE_STORAGE_BUCKET
+    AWS_S3_ENDPOINT_URL = SUPABASE_STORAGE_ENDPOINT
+    AWS_S3_REGION_NAME = os.environ.get('SUPABASE_STORAGE_REGION', 'us-east-1')
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_QUERYSTRING_AUTH = False
+    AWS_S3_FILE_OVERWRITE = False
+else:
+    STORAGES["default"] = {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
