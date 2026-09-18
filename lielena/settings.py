@@ -161,6 +161,16 @@ SUPABASE_STORAGE_BUCKET = os.environ.get('SUPABASE_STORAGE_BUCKET', 'product-ima
 SUPABASE_ACCESS_KEY_ID = os.environ.get('SUPABASE_ACCESS_KEY_ID')
 SUPABASE_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_SECRET_ACCESS_KEY')
 
+# The project ref is the subdomain in your Supabase project URL, e.g. for
+# https://kqueiofsjbiznycmxcnj.supabase.co it's "kqueiofsjbiznycmxcnj".
+# Used to build the PUBLIC browser-facing image URL, which is different
+# from the S3 upload endpoint above. You can override it in production
+# with a SUPABASE_PROJECT_REF env var if this project's ref ever changes.
+SUPABASE_PROJECT_REF = os.environ.get(
+    'SUPABASE_PROJECT_REF',
+    'kqueiofsjbiznycmxcnj',
+)
+
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
@@ -169,7 +179,11 @@ STORAGES = {
 
 if SUPABASE_STORAGE_ENDPOINT and SUPABASE_ACCESS_KEY_ID:
     STORAGES["default"] = {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        # Custom subclass of S3Boto3Storage (see shop/storage.py) that
+        # still uploads via the S3-compatible endpoint below, but returns
+        # Supabase's public object URL (not the S3 endpoint URL) when
+        # Django asks for image.url — that's the part that was broken.
+        "BACKEND": "shop.storage.SupabasePublicStorage",
     }
     AWS_ACCESS_KEY_ID = SUPABASE_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY = SUPABASE_SECRET_ACCESS_KEY
